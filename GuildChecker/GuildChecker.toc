@@ -1,0 +1,11 @@
+## Interface: 20501
+## Title: Guild Checker
+## Author: Wiibur
+## Date: July 13, 2021
+## Version: 1.0
+## SavedVariables: allowedGuilds,UserBlacklist,GuildCheckerFirstTimeRun
+LibGPIOptions.lua
+LibGPIMinimapButton.lua
+LibGPIToolBox.lua
+GuildChecker.lua
+init.lua
