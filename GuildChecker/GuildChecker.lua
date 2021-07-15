@@ -413,27 +413,27 @@ function GuildChecker:RosterUpdate()
 					--core:Print("player = "..v..", guildName = "..guildName);
 
 
-
+	-- REDRAW
           --need to reset the position for index 1 to the top left then build children from there
           if k == 1 then
-            GuildCheckerFrame.playerNames[i]:SetPoint("TOPLEFT", content1, "TOPLEFT", 5, -6);
-						GuildCheckerFrame.playerGuilds[i]:SetPoint("LEFT", GuildCheckerFrame.playerNames[i], "RIGHT", 0, 0);
-            GuildCheckerFrame.validatebuttons[i]:SetPoint("TOPRIGHT",content1,0,-4);
-            GuildCheckerFrame.kickbuttons[i]:SetPoint("RIGHT",GuildCheckerFrame.validatebuttons[i],"LEFT")
-            GuildCheckerFrame.blacklistbuttons[i]:SetPoint("RIGHT",GuildCheckerFrame.kickbuttons[i],"LEFT")
+            	GuildCheckerFrame.playerNames[i]:SetPoint("TOPLEFT", content1, "TOPLEFT", 5, -6);
+		GuildCheckerFrame.playerGuilds[i]:SetPoint("LEFT", GuildCheckerFrame.playerNames[i], "RIGHT", 0, 0);
+            	GuildCheckerFrame.validatebuttons[i]:SetPoint("TOPRIGHT",content1,0,-4);
+            	GuildCheckerFrame.kickbuttons[i]:SetPoint("RIGHT",GuildCheckerFrame.validatebuttons[i],"LEFT")
+            	GuildCheckerFrame.blacklistbuttons[i]:SetPoint("RIGHT",GuildCheckerFrame.kickbuttons[i],"LEFT")
           else
-            GuildCheckerFrame.playerNames[i]:SetPoint("TOPLEFT", content1, "TOPLEFT", 5, -19*(k-1));
-						GuildCheckerFrame.playerGuilds[i]:SetPoint("LEFT", GuildCheckerFrame.playerNames[i], "RIGHT", 0, 0);
-            GuildCheckerFrame.validatebuttons[i]:SetPoint("TOPRIGHT",content1,0,-19*(k-1));
-            GuildCheckerFrame.kickbuttons[i]:SetPoint("RIGHT",GuildCheckerFrame.validatebuttons[i],"LEFT")
-            GuildCheckerFrame.blacklistbuttons[i]:SetPoint("RIGHT",GuildCheckerFrame.kickbuttons[i],"LEFT")
+            	GuildCheckerFrame.playerNames[i]:SetPoint("TOPLEFT", content1, "TOPLEFT", 5, -19*(k-1));
+		GuildCheckerFrame.playerGuilds[i]:SetPoint("LEFT", GuildCheckerFrame.playerNames[i], "RIGHT", 0, 0);
+            	GuildCheckerFrame.validatebuttons[i]:SetPoint("TOPRIGHT",content1,0,-19*(k-1));
+            	GuildCheckerFrame.kickbuttons[i]:SetPoint("RIGHT",GuildCheckerFrame.validatebuttons[i],"LEFT")
+            	GuildCheckerFrame.blacklistbuttons[i]:SetPoint("RIGHT",GuildCheckerFrame.kickbuttons[i],"LEFT")
           end
 
-          GuildCheckerFrame.playerNames[i]:Show();
-					GuildCheckerFrame.playerGuilds[i]:Show();
-          GuildCheckerFrame.validatebuttons[i]:Show();
-          GuildCheckerFrame.kickbuttons[i]:Show();
-          GuildCheckerFrame.blacklistbuttons[i]:Show();
+        	GuildCheckerFrame.playerNames[i]:Show();
+		GuildCheckerFrame.playerGuilds[i]:Show();
+          	GuildCheckerFrame.validatebuttons[i]:Show();
+          	GuildCheckerFrame.kickbuttons[i]:Show();
+          	GuildCheckerFrame.blacklistbuttons[i]:Show();
           --try and recheck guildname for existing playerNames, update name color accordingly
 
 
@@ -549,15 +549,15 @@ function GuildChecker:RosterUpdate()
         playerName:SetText(v);
 
         if k == 1 then
-          playerName:SetPoint("TOPLEFT", content1, "TOPLEFT", 5, -6);
-					playerGuild:SetPoint("LEFT",playerName,"RIGHT",0,0);
-          validateButton:SetPoint("TOPRIGHT",content1,0,-2)
-          kick1:SetPoint("RIGHT",validateButton,"LEFT")
-          blacklist1:SetPoint("RIGHT",kick1,"LEFT")
+          	playerName:SetPoint("TOPLEFT", content1, "TOPLEFT", 5, -6);
+		playerGuild:SetPoint("LEFT",playerName,"RIGHT",0,0);
+          	validateButton:SetPoint("TOPRIGHT",content1,0,-4)
+          	kick1:SetPoint("RIGHT",validateButton,"LEFT")
+         	blacklist1:SetPoint("RIGHT",kick1,"LEFT")
 
         else
           playerName:SetPoint("TOPLEFT", content1, "TOPLEFT", 5, -19*(k-1));
-					playerGuild:SetPoint("LEFT",playerName,"RIGHT",0,0);
+	  playerGuild:SetPoint("LEFT",playerName,"RIGHT",0,0);
           validateButton:SetPoint("TOPRIGHT",content1,0,-19*(k-1))
           kick1:SetPoint("RIGHT",validateButton,"LEFT")
           blacklist1:SetPoint("RIGHT",kick1,"LEFT")
