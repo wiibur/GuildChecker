@@ -450,7 +450,7 @@ function GuildChecker:RosterUpdate()
 						--core:Print("roster update debug: inside guildName~=nil logic for player " .. v .. ", guildName = "..guildName);
             for g,w in pairs(allowedGuilds) do
               if string.upper(w) == string.upper(guildName) then
-								core:Print("text color for player "..v.." set to green");
+								--core:Print("text color for player "..v.." set to green");
                 GuildCheckerFrame.playerNames[i]:SetTextColor(0,1,0);
 								GuildCheckerFrame.playerGuilds[i]:SetTextColor(0,1,0);
                 allowed = true;
