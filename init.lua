@@ -65,17 +65,19 @@ end
 
 function core:init()
   SLASH_GUILDCHECKER1 = '/guildchecker';
+  SLASH_GUILDCHECKER2 = '/GUILDCHECKER';
   local function handler(msg, editBox)
-      if msg == 'show' then
+      if msg == '' then
         core.GuildChecker:Toggle();
       end
   end
   SlashCmdList["GUILDCHECKER"] = handler;
+  
+  core.GuildChecker:CreateGuildChecker();
 
-
-  core.GuildChecker:Toggle();
-  core:Print(TOCNAME .. " addon has been fully loaded");
-
+  --core.GuildChecker:Toggle();
+  
+  --[[ don't need to print this anymore, can probably delete this code
   --print current UserBlacklist
   if UserBlacklist and #UserBlacklist > 0 then
     blacklistStr = ""
@@ -90,8 +92,9 @@ function core:init()
   else
     core:Print("No UserBlacklist to load.")
   end
+  ]]
+  core:Print(TOCNAME .. " addon has been fully loaded.");
 end
-
 
 local function OnEvent(self, event, ...)
     if event == "ADDON_LOADED" and ... == TOCNAME then

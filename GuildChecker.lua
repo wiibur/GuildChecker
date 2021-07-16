@@ -24,316 +24,312 @@ local defaults = {
 }
 
 -- local Functions -------------------------------------------------------------------------------------------------------------
-
-
--- GuildChecker Functions ------------------------------------------------------------------------------------------------------
-function GuildChecker:Toggle()
-	local window = GuildCheckerFrame or GuildChecker:CreateGuildChecker();
-	window:SetShown(not window:IsShown());
-end
-
-function GuildChecker:CreateButton(point, relativeFrame, relativePoint, yOffset, text)
-	local btn = CreateFrame("Button", nil, relativeFrame, "UIPanelButtonTemplate");
-	btn:SetPoint(point, relativeFrame, relativePoint, 0, yOffset);
-	btn:SetSize(60 ,18)
-	btn:SetText(text);
-
-	return btn;
-end
-
-function GuildChecker:GetThemeColor()
-	local c = defaults.theme;
-	return c.r, c.g, c.b, c.hex;
-end
-
 local function ScrollFrame_OnMouseWheel(self, delta)
-	local newValue = self:GetVerticalScroll() - (delta * 20);
+  local newValue = self:GetVerticalScroll() - (delta * 20);
 
-	if (newValue < 0) then
-		newValue = 0;
-	elseif (newValue > self:GetVerticalScrollRange()) then
-		newValue = self:GetVerticalScrollRange();
-	end
+  if (newValue < 0) then
+    newValue = 0;
+  elseif (newValue > self:GetVerticalScrollRange()) then
+    newValue = self:GetVerticalScrollRange();
+  end
 
-	self:SetVerticalScroll(newValue);
+  self:SetVerticalScroll(newValue);
 end
 
 local function newStack()
-	return {""}   -- starts with an empty string
+  return {""}   -- starts with an empty string
 end
 
 local function addString(stack, s)
-	table.insert(stack, s)    -- push 's' into the the stack
-	for i=table.getn(stack)-1, 1, -1 do
-		if string.len(stack[i]) > string.len(stack[i+1]) then
-			break
-		end
-		stack[i] = stack[i] .. table.remove(stack)
-	end
+  table.insert(stack, s)    -- push 's' into the the stack
+  for i=table.getn(stack)-1, 1, -1 do
+    if string.len(stack[i]) > string.len(stack[i+1]) then
+      break
+    end
+    stack[i] = stack[i] .. table.remove(stack)
+  end
 end
 
 local function addGuild()
 
   local guilds = core.Tool.Split(string.upper(UpdateApprovalListBox:GetText()), ",");
 
-	for i,guild in pairs(guilds) do
-		guild = string.gsub(guild, '^%s*(.-)%s*$', '%1');
-	  if guild == "" or guild == string.upper("Enter Guild Name(s)") then
-			core:Print("Guild name cannot be blank.");
-	    return
-	  end
-		for k,v in pairs(allowedGuilds) do
-			if guild == string.upper(v) then
-				core:Print("Guild name already exists in whitelist.");
-				GuildChecker:RosterUpdate();
-				return
-			end
-		end
+  for i,guild in pairs(guilds) do
+    guild = string.gsub(guild, '^%s*(.-)%s*$', '%1');
+    if guild == "" or guild == string.upper("Enter Guild Name(s)") then
+      core:Print("Guild name cannot be blank.");
+      return
+    end
+    for k,v in pairs(allowedGuilds) do
+      if guild == string.upper(v) then
+        core:Print("Guild name already exists in whitelist.");
+        GuildChecker:RosterUpdate();
+        return
+      end
+    end
 
-	  tinsert(allowedGuilds,guild);
-		core:Print(guild.." has been added to the whitelist.")
-	  UpdateApprovalListBox:ClearFocus();
-	  --UpdateApprovalListBox:SetText("");
+    tinsert(allowedGuilds,guild);
+    core:Print(guild.." has been added to the whitelist.")
+    UpdateApprovalListBox:ClearFocus();
+    --UpdateApprovalListBox:SetText("");
 
-	  GuildChecker:RosterUpdate();
-		allowedGuildsListFontString:SetText(GuildChecker:GetAllowedGuildsAsString());
-	end
+    GuildChecker:RosterUpdate();
+    allowedGuildsListFontString:SetText(GuildChecker:GetAllowedGuildsAsString());
+  end
 end
 
 local function removeGuild()
   local guilds = core.Tool.Split(string.upper(UpdateApprovalListBox:GetText()),",");
-	for i,guild in pairs(guilds) do
-		guild = string.gsub(guild, '^%s*(.-)%s*$', '%1');
-		if guild == "" or guild == string.upper("Enter Guild Name(s)") then
-	    core:Print("Guild name cannot be blank.");
-	    return
-	  end
+  for i,guild in pairs(guilds) do
+    guild = string.gsub(guild, '^%s*(.-)%s*$', '%1');
+    if guild == "" or guild == string.upper("Enter Guild Name(s)") then
+      core:Print("Guild name cannot be blank.");
+      return
+    end
 
-	  for k,v in pairs(allowedGuilds) do
-	    if guild == string.upper(v) then
-	      tremove(allowedGuilds,k)
-				core:Print("Guild name " .. guild .. " has been removed from the whitelist.");
-	    end
-	  end
-	  UpdateApprovalListBox:ClearFocus();
-	  GuildChecker:RosterUpdate();
-		allowedGuildsListFontString:SetText(GuildChecker:GetAllowedGuildsAsString());
-	end
+    for k,v in pairs(allowedGuilds) do
+      if guild == string.upper(v) then
+        tremove(allowedGuilds,k)
+        core:Print("Guild name " .. guild .. " has been removed from the whitelist.");
+      end
+    end
+    UpdateApprovalListBox:ClearFocus();
+    GuildChecker:RosterUpdate();
+    allowedGuildsListFontString:SetText(GuildChecker:GetAllowedGuildsAsString());
+  end
 end
 
 local function clearList()
   allowedGuilds = {}
   core:Print("Guild whitelist has been reset.");
   GuildChecker:RosterUpdate();
-	allowedGuildsListFontString:SetText(GuildChecker:GetAllowedGuildsAsString());
+  allowedGuildsListFontString:SetText(GuildChecker:GetAllowedGuildsAsString());
 end
 
 local function addBlacklist()
   local usernames = core.Tool.Split(string.upper(BlacklistEditBox:GetText()),",");
 
-	for i,username in pairs(usernames) do
-		username = string.gsub(username, '^%s*(.-)%s*$', '%1');
-	  if username == "" or username == string.upper("Enter Player Name(s)") then
-			core:Print("Player name cannot be blank.");
-			return
-	  end
-	  for k,v in pairs(UserBlacklist) do
-	    if username == v then
-	      core:Print("Player name already exists in blacklist.")
-	      GuildChecker:RosterUpdate();
-	      return
-	    end
-	  end
-	  tinsert(UserBlacklist,username)
-		core:Print("Player name " .. username.." has been added to the blacklist.")
-	  BlacklistEditBox:ClearFocus();
-	  --BlacklistEditBox:SetText("");
-	  GuildChecker:RosterUpdate();
-	  if UserBlacklist and #UserBlacklist > 0 then
-	    blacklistStr = ""
-	    for k,v in pairs(UserBlacklist) do
-	      if k == #UserBlacklist then
-	        blacklistStr = blacklistStr .. v
-	      else
-	        blacklistStr = blacklistStr .. v .. ", "
-	      end
-	    end
-	    --core:Print("Blacklist: " .. blacklistStr)
-	  else
-	    core:Print("No blacklist contents to load.")
-	  end
-		blacklistedPlayersFontString:SetText(GuildChecker:GetBlacklistedPlayersAsString());
-	end
+  for i,username in pairs(usernames) do
+    username = string.gsub(username, '^%s*(.-)%s*$', '%1');
+    if username == "" or username == string.upper("Enter Player Name(s)") then
+      core:Print("Player name cannot be blank.");
+      return
+    end
+    for k,v in pairs(UserBlacklist) do
+      if username == v then
+        core:Print("Player name already exists in blacklist.")
+        GuildChecker:RosterUpdate();
+        return
+      end
+    end
+    tinsert(UserBlacklist,username)
+    core:Print("Player name " .. username.." has been added to the blacklist.")
+    BlacklistEditBox:ClearFocus();
+    --BlacklistEditBox:SetText("");
+    GuildChecker:RosterUpdate();
+    if UserBlacklist and #UserBlacklist > 0 then
+      blacklistStr = ""
+      for k,v in pairs(UserBlacklist) do
+        if k == #UserBlacklist then
+          blacklistStr = blacklistStr .. v
+        else
+          blacklistStr = blacklistStr .. v .. ", "
+        end
+      end
+      --core:Print("Blacklist: " .. blacklistStr)
+    else
+      --core:Print("No blacklist contents to load.")
+    end
+    blacklistedPlayersFontString:SetText(GuildChecker:GetBlacklistedPlayersAsString());
+  end
 end
 
 local function removeBlacklist()
   local usernames = core.Tool.Split(string.upper(BlacklistEditBox:GetText()),",");
-	for i,username in pairs(usernames) do
-		username = string.gsub(username, '^%s*(.-)%s*$', '%1');
-		if username == "" or username == string.upper("Enter Player Name(s)") then
-			core:Print("Player name cannot be blank.");
-			return
-	  end
-	  for k,v in pairs(UserBlacklist) do
-	    if username == v then
-	      core:Print("Player name ".. username .. " has been removed from blacklist.")
-	      tremove(UserBlacklist,k)
-	      BlacklistEditBox:ClearFocus();
-	      --BlacklistEditBox:SetText("");
-	      GuildChecker:RosterUpdate();
-	      if UserBlacklist and #UserBlacklist > 0 then
-	        blacklistStr = ""
-	        for k,v in pairs(UserBlacklist) do
-	          if k == #UserBlacklist then
-	            blacklistStr = blacklistStr .. v
-	          else
-	            blacklistStr = blacklistStr .. v .. ", "
-	          end
-	        end
-	        --core:Print("Blacklist: " .. blacklistStr)
-	      else
-	        core:Print("No blacklist contents to load.")
-	      end
-	    end
-	  end
-		blacklistedPlayersFontString:SetText(GuildChecker:GetBlacklistedPlayersAsString());
-	end
+  for i,username in pairs(usernames) do
+    username = string.gsub(username, '^%s*(.-)%s*$', '%1');
+    if username == "" or username == string.upper("Enter Player Name(s)") then
+      core:Print("Player name cannot be blank.");
+      return
+    end
+    for k,v in pairs(UserBlacklist) do
+      if username == v then
+        core:Print("Player name ".. username .. " has been removed from blacklist.")
+        tremove(UserBlacklist,k)
+        BlacklistEditBox:ClearFocus();
+        --BlacklistEditBox:SetText("");
+        GuildChecker:RosterUpdate();
+        if UserBlacklist and #UserBlacklist > 0 then
+          blacklistStr = ""
+          for k,v in pairs(UserBlacklist) do
+            if k == #UserBlacklist then
+              blacklistStr = blacklistStr .. v
+            else
+              blacklistStr = blacklistStr .. v .. ", "
+            end
+          end
+          --core:Print("Blacklist: " .. blacklistStr)
+        else
+          core:Print("No blacklist contents to load.")
+        end
+      end
+    end
+    blacklistedPlayersFontString:SetText(GuildChecker:GetBlacklistedPlayersAsString());
+  end
 end
 
 local function clearBlacklist()
   UserBlacklist = {}
   GuildChecker:RosterUpdate();
   core:Print("Player blacklist has been reset.")
-	blacklistedPlayersFontString:SetText(GuildChecker:GetBlacklistedPlayersAsString());
+  blacklistedPlayersFontString:SetText(GuildChecker:GetBlacklistedPlayersAsString());
 end
-------------------------------------------------------------------------------------------------------------------------------------------
 
 local function Tab_OnClick(self)
-	PanelTemplates_SetTab(self:GetParent(), self:GetID());
+  PanelTemplates_SetTab(self:GetParent(), self:GetID());
 
-	local scrollChild = GuildCheckerFrame.ScrollFrame:GetScrollChild();
-	if (scrollChild) then
-		scrollChild:Hide();
-	end
+  local scrollChild = GuildCheckerFrame.ScrollFrame:GetScrollChild();
+  if (scrollChild) then
+    scrollChild:Hide();
+  end
 
-	GuildCheckerFrame.ScrollFrame:SetScrollChild(self.content);
-	GuildCheckerFrame.ScrollFrame:SetVerticalScroll(0);
+  GuildCheckerFrame.ScrollFrame:SetScrollChild(self.content);
+  GuildCheckerFrame.ScrollFrame:SetVerticalScroll(0);
 
-	self.content:Show();
+  self.content:Show();
 
-	if self:GetID() ~= 1 then
-		--TODO:write function showContent1Buttons() and hideContent1Buttons()
-		GuildCheckerFrame.RosterUpdateButton:Hide();
-	else
-		GuildCheckerFrame.RosterUpdateButton:Show();
-	end
-	--core:Print("self.content:GetID() = "..self:GetID());
+  if self:GetID() == 1 then
+    --TODO:write function showContent1Buttons() and hideContent1Buttons()
+    GuildCheckerFrame.RosterUpdateButton:Show();
+  else
+    GuildCheckerFrame.RosterUpdateButton:Hide();
+  end
+
+  if self:GetID() == 3 then
+    --TODO:write function showContent1Buttons() and hideContent1Buttons()
+    GuildCheckerFrame.createdByMessage:Show();
+  else
+    GuildCheckerFrame.createdByMessage:Hide();
+  end
+
+
+
+  --core:Print("self.content:GetID() = "..self:GetID());
 end
 
 local function SetTabs(frame,numTabs,...)
-	frame.numTabs = numTabs;
+  frame.numTabs = numTabs;
 
-	local contents = {};
-	local frameName = frame:GetName();
+  local contents = {};
+  local frameName = frame:GetName();
 
-	for i = 1, numTabs do
-		local tab = CreateFrame("Button", frameName.."Tab"..i, frame, "CharacterFrameTabButtonTemplate");
-		tab:SetID(i);
-		tab:SetText(select(i, ...));
-		tab:SetScript("OnClick", Tab_OnClick);
+  for i = 1, numTabs do
+    local tab = CreateFrame("Button", frameName.."Tab"..i, frame, "CharacterFrameTabButtonTemplate");
+    tab:SetID(i);
+    tab:SetText(select(i, ...));
+    tab:SetScript("OnClick", Tab_OnClick);
 
-		tab.content = CreateFrame("Frame", nil, GuildCheckerFrame.ScrollFrame);
-		tab.content:SetSize(455, 700);
-		tab.content:Hide();
+    tab.content = CreateFrame("Frame", nil, GuildCheckerFrame.ScrollFrame);
+    tab.content:SetSize(455, 700);
+    tab.content:Hide();
 
-		--[[ just for tutorial only:
-		tab.content.bg = tab.content:CreateTexture(nil, "BACKGROUND");
-		tab.content.bg:SetAllPoints(true);
-		tab.content.bg:SetColorTexture(math.random(), math.random(), math.random(), 0.6);
-		]]
-		table.insert(contents, tab.content);
+    --[[ just for tutorial only:
+    tab.content.bg = tab.content:CreateTexture(nil, "BACKGROUND");
+    tab.content.bg:SetAllPoints(true);
+    tab.content.bg:SetColorTexture(math.random(), math.random(), math.random(), 0.6);
+    ]]
+    table.insert(contents, tab.content);
 
-		if (i == 1) then
-			tab:SetPoint("TOPLEFT", GuildCheckerFrame, "BOTTOMLEFT", 5, 2);
-		else
-			tab:SetPoint("TOPLEFT", _G[frameName.."Tab"..(i - 1)], "TOPRIGHT", -14, 0);
-		end
-	end
+    if (i == 1) then
+      tab:SetPoint("TOPLEFT", GuildCheckerFrame, "BOTTOMLEFT", 5, 2);
+    else
+      tab:SetPoint("TOPLEFT", _G[frameName.."Tab"..(i - 1)], "TOPRIGHT", -14, 0);
+    end
+  end
 
-	if GuildCheckerFirstTimeRun then
-		core:Print("first time run, showing about tab")
-		Tab_OnClick(_G[frameName.."Tab3"]);
-		GuildCheckerFirstTimeRun = false;
-	else
-		core:Print("not first time run, showing players tab")
-		Tab_OnClick(_G[frameName.."Tab1"]);
-	end
+  if GuildCheckerFirstTimeRun then
+    --core:Print("first time run, showing about tab")
+    Tab_OnClick(_G[frameName.."Tab3"]);
+    GuildCheckerFirstTimeRun = false;
+  else
+    --core:Print("not first time run, showing players tab")
+    Tab_OnClick(_G[frameName.."Tab1"]);
+  end
 
-	return unpack(contents);
+  return unpack(contents);
 end
 
 local function GetPlayersList()
-	local plist={}
+  local plist={}
 
-	if IsInRaid() then
-			for i=1,40 do
-					if (UnitName('raid'..i)) then
-							tinsert(plist,(UnitName('raid'..i)))
-					end
-			end
-	elseif IsInGroup() then
-			for i=1,4 do
-					if (UnitName('party'..i)) then
-							tinsert(plist,(UnitName('party'..i)))
-					end
-			end
-	end
+  if IsInRaid() then
+      for i=1,40 do
+          if (UnitName('raid'..i)) then
+              tinsert(plist,(UnitName('raid'..i)))
+          end
+      end
+  elseif IsInGroup() then
+      for i=1,5 do
+          if (UnitName('party'..i)) then
+              tinsert(plist,(UnitName('party'..i)))
+          end
+      end
+  end
 
-	return plist;
+  return plist;
 end
 
 local function PlayerIsInGroup(name)
-	local playerIsInGroup = false;
+  local playerIsInGroup = false;
 
-	for k,v in pairs(GetPlayersList()) do
-		if string.upper(v) == string.upper(name) then
-			playerIsInGroup = true;
-		end
-	end
-	return playerIsInGroup;
+  for k,v in pairs(GetPlayersList()) do
+    if string.upper(v) == string.upper(name) then
+      playerIsInGroup = true;
+    end
+  end
+  return playerIsInGroup;
 end
 
 local function GuildIsApproved(name)
-	local guildIsApproved = false;
+  local guildIsApproved = false;
 
-	for k,v in pairs(allowedGuilds) do
-		if string.upper(v) == string.upper(name) then
-			guildIsApproved = true;
-		end
-	end
-	return guildIsApproved;
+  for k,v in pairs(allowedGuilds) do
+    if string.upper(v) == string.upper(name) then
+      guildIsApproved = true;
+    end
+  end
+  return guildIsApproved;
 end
 
 local function PlayerIsBlacklisted(name)
-	local blacklisted = false;
-	for k,v in pairs(UserBlacklist) do
-		if string.upper(name) == string.upper(v) then
-			core:Print("[GuildChecker] Detected blacklisted user: " .. v);
-			blacklisted = true;
-		end
-	end
-	return blacklisted;
+  local blacklisted = false;
+  for k,v in pairs(UserBlacklist) do
+    if string.upper(name) == string.upper(v) then
+      core:Print("[GuildChecker] Detected blacklisted user: " .. v);
+      blacklisted = true;
+    end
+  end
+  return blacklisted;
 end
 
 local function PlayerIsUnguilded()
-
+  --TODO
 end
 
 local function SortPlayersList()
-	--TODO: this function sorts the current list of player fontstrings and puts at the top those users that are blacklisted, have an unapproved guild, or are unguilded
-
+  --TODO: this function sorts the current list of player fontstrings and puts at the top those users that are blacklisted, have an unapproved guild, or are unguilded
 end
 
+-- GuildChecker Functions ------------------------------------------------------------------------------------------------------
+function GuildChecker:Toggle()
+  local window = GuildCheckerFrame or GuildChecker:CreateGuildChecker();
+	window:SetShown(not window:IsShown());
+end
+
+function GuildChecker:GetThemeColor()
+	local c = defaults.theme;
+	return c.r, c.g, c.b, c.hex;
+end
 
 function GuildChecker:GetBlacklistedPlayersAsString()
 	local blacklistString = "";
@@ -373,7 +369,13 @@ end
 
 function GuildChecker:RosterUpdate()
   local plist= GetPlayersList();
-
+  
+  if IsInGroup() then 
+    GuildCheckerFrame:Show();
+  else
+    GuildCheckerFrame:Hide();   
+  end
+  
 	-- handle the roster button (only enable it if people are in your party/raid)
 	if #plist > 0 then GuildCheckerFrame.RosterUpdateButton:Enable(); else GuildCheckerFrame.RosterUpdateButton:Disable(); end
 
@@ -522,7 +524,7 @@ function GuildChecker:RosterUpdate()
         if(guildName == nil) then
           playerName:SetTextColor(0.5,0.5,0.5);
 					playerGuild:SetTextColor(0.5,0.5,0.5);
-          blacklist1:Disable();
+          --blacklist1:Enable();
         else
           local allowed = false
 
@@ -706,6 +708,12 @@ function GuildChecker:CreateGuildChecker()
 	GuildCheckerFrame.RosterUpdateButton:SetPoint("TOPRIGHT",GuildCheckerFrame.TitleBg,"TOPRIGHT",0,2);
 	GuildCheckerFrame.RosterUpdateButton:Disable();
 
+	GuildCheckerFrame.createdByMessage = GuildCheckerFrame:CreateFontString("createdByMessage","OVERLAY",GuildCheckerFrame,nil);
+  GuildCheckerFrame.createdByMessage:SetFontObject("GameFontHighlight");
+  GuildCheckerFrame.createdByMessage:SetPoint("TOPRIGHT",GuildCheckerFrame.TitleBg,"TOPRIGHT",-5,-2);
+  GuildCheckerFrame.createdByMessage:SetText("Created By: |cff9370DBWiibur <TL> Herod|r".."  Discord: |cff9370DBWiibur#0001|r\n");
+
+
 	local rb = CreateFrame("Button", nil, GuildCheckerFrame)
 	rb:SetPoint("BOTTOMRIGHT", -6, 7)
 	rb:SetSize(16, 16)
@@ -836,6 +844,8 @@ function GuildChecker:CreateGuildChecker()
 	ClearBlacklistButton:SetPoint("LEFT",removeBlacklistButton,"RIGHT",0,0)
 
 	--content3--------------------------------------------------------------------------------------------------
+
+
 	local aboutMessage = content3:CreateFontString("aboutMessage","OVERLAY", content3,nil);
 	aboutMessage:SetFontObject("GameFontHighlight");
 	--aboutMessage:SetText("Notes: \n|cff9ACD321. Guild detection is based on player being visible/nearby.\n2. Enable friendly nameplates to boost guild detection.\n3. If you hide the add-on, show it again with \"/guildchecker show\".\n4. Use the Roster Update button if a player's name shows up as \"UNKNOWN\".\n5. Use the Detect button if a player's guild isn't detected automatically (can only be used once every few seconds).|r\n\nCreated By: |cff9370DBWiibur <TL> - Herod|r\nDiscord:      |cff9370DBWiibur#0001|r");
@@ -843,18 +853,19 @@ function GuildChecker:CreateGuildChecker()
 	aboutMessage:SetWidth(460);
 	aboutMessage:SetJustifyH("LEFT");
 
+
 	local aboutString = newStack();
-	addString(aboutString,"Created By: |cff9370DBWiibur <TL> - Herod|r".."      Discord: |cff9370DBWiibur#0001|r\n");
-	addString(aboutString,"\nDescription:\n");
+	--addString(aboutString,"Created By: |cff9370DBWiibur <TL> - Herod|r".."      Discord: |cff9370DBWiibur#0001|r\n");
+	addString(aboutString,"Description:\n");
 	addString(aboutString,"|cff9ACD32"..TOCNAME.." is a tool for guild coalitions that allows raid or group leaders to verify that everyone in the group belongs to a guild in the coalition.|r\n");
 	addString(aboutString,"\nUsage:\n");
 	addString(aboutString,"|cff9ACD321. Add guilds to the whitelist of approved guilds on the Options tab. This can be done individually or with a comma-separated list.|r\n");
 	addString(aboutString,"|cff9ACD322. As group members join they will be added on the Players tab and their guild will be detected, if they are in range.|r\n");
-	addString(aboutString,"|cff9ACD323. Use the Detect button if a player's guild isn't detected automatically (can only be used once every few seconds).|r\n");
-	addString(aboutString,"|cff9ACD324. Use the Roster Update button if a player's name shows up as \"UNKNOWN\".|r\n");
+	addString(aboutString,"|cff9ACD323. Use the |rDetect |cff9ACD32button if a player's guild isn't detected automatically (can only be used once every few seconds).|r\n");
+	addString(aboutString,"|cff9ACD324. Use the |rRoster Update |cff9ACD32button if a player's name shows up as |r|cff808080UNKNOWN|r|cff9ACD32.|r\n");
 	addString(aboutString,"|cff9ACD325. Enable friendly nameplates to boost guild detection.|r\n");
-	addString(aboutString,"|cff9ACD326. If you hide the add-on, show it again with \"/guildchecker show\".|r\n");
-	addString(aboutString,"|cff9ACD327. Blacklisted players should be removed from the group automatically, but this requires another roster update event to occur (can be triggered manually via the Roster Update button).|r\n");
+	addString(aboutString,"|cff9ACD326. If you hide the add-on, show it again with: |r|cffFFD700/guildchecker|r\n");
+	addString(aboutString,"|cff9ACD327. Blacklisted players should be removed from the group automatically, but this requires another roster update event to occur (can be triggered manually via the |rRoster Update |cff9ACD32button).|r\n");
 	addString(aboutString,"\n");
 	addString(aboutString,"Player Name Color Codes:\n");
 	addString(aboutString,"|cff808080Guild unknown|r\n");
@@ -863,11 +874,10 @@ function GuildChecker:CreateGuildChecker()
 	addString(aboutString,"|cffFF0000Not in whitelisted guild|r\n");
 	addString(aboutString,"|cffFF00FFBlacklisted user|r\n");
 
-
-
-	--addString(aboutString,"|cff9ACD32".."".."|r\n");
-
+  --addString(aboutString,"|cff9ACD32".."".."|r\n");
 	aboutMessage:SetText(table.concat(aboutString));
+
+
 
 	-----------------------------------------------------------------------------------------------------------
 
@@ -883,8 +893,18 @@ function GuildChecker:CreateGuildChecker()
 	return GuildCheckerFrame;
 end
 
+--[[
+function GuildChecker:CreateButton(point, relativeFrame, relativePoint, yOffset, text)
+  local btn = CreateFrame("Button", nil, relativeFrame, "UIPanelButtonTemplate");
+  btn:SetPoint(point, relativeFrame, relativePoint, 0, yOffset);
+  btn:SetSize(60 ,18)
+  btn:SetText(text);
 
---[[Useful stuff
+  return btn;
+end
+]]
+
+--[[Color codes
 
 print("|cffFF0000This text is red|r This text is white |cff00FF00This text is green|r |cff0000FFThis text is blue|r")
 https://www.rapidtables.com/web/color/html-color-codes.html
@@ -893,7 +913,7 @@ deeppink	#FF1493 |cffFF1493|r
 mediumpurple	#9370DB |cff9370DB|r
 magenta	#FF00FF |cffFF00FF|r
 gray	#808080 |cff808080|r
-
+gold  #FFD700 |cffFFD700|r
 ]]
 
 --[[TODO:
@@ -907,7 +927,15 @@ gray	#808080 |cff808080|r
 9. update ParseNameplates() to remove blacklisted users - this doesn't work, i tried it already, the uninvite command won't execute via this event
 	a. create a label for this type of message "blacklisted user detected" and show it in main window somewhere
 
-- only display addon when in a group or in a raid
+****only display addon when in a group or in a raid****
 -there is a bug where a user's name color won't update when the blacklist is cleared or they are removed from the blacklist
 - rosterupdate doesn't update the color of unguilded players correctly
+
+/who player gas
+returned several players with gas in their name
+need to add logic to check the full name match for a list of /who results (how to read the results list and match from it?)
+
+the 2nd player's y-position is too close to the first row because i'm not checking when k==1 if that player is first in the list in the addon already, even if they're first in the plist
+
+
 ]]
