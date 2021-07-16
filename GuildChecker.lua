@@ -923,11 +923,7 @@ gold  #FFD700 |cffFFD700|r
 	a. maybe something like 35/40 players approved (x approved players / group size)
 6. make sure player name frames are being used efficiently, not wasting frames
 	a. when a user leaves the group, recycle their frame so it can be used again
-8. are there any cases where a blacklisted player in a whitelisted guild might cause issues?
-9. update ParseNameplates() to remove blacklisted users - this doesn't work, i tried it already, the uninvite command won't execute via this event
-	a. create a label for this type of message "blacklisted user detected" and show it in main window somewhere
 
-****only display addon when in a group or in a raid****
 -there is a bug where a user's name color won't update when the blacklist is cleared or they are removed from the blacklist
 - rosterupdate doesn't update the color of unguilded players correctly
 
