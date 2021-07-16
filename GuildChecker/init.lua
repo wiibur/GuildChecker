@@ -4,57 +4,57 @@ local TOCNAME, core = ...;
 -- Custom Slash Command
 --------------------------------------
 core.commands = {
-	["show"] = core.GuildChecker.Toggle, -- this is a function (no knowledge of Config object)
+  ["show"] = core.GuildChecker.Toggle, -- this is a function (no knowledge of Config object)
 
-	["help"] = function()
-		print(" ");
-		core:Print("List of slash commands:")
-		core:Print("|cff00cc66/at config|r - shows config menu");
-		core:Print("|cff00cc66/at help|r - shows help info");
-		print(" ");
-	end,
+  ["help"] = function()
+    print(" ");
+    core:Print("List of slash commands:")
+    core:Print("|cff00cc66/at config|r - shows config menu");
+    core:Print("|cff00cc66/at help|r - shows help info");
+    print(" ");
+  end,
 
-	["example"] = {
-		["test"] = function(...)
-			core:Print("My Value:", tostringall(...));
-		end
-	}
+  ["example"] = {
+    ["test"] = function(...)
+      core:Print("My Value:", tostringall(...));
+    end
+  }
 };
 
 local function HandleSlashCommands(str)
-	if (#str == 0) then
-		-- User just entered "/at" with no additional args.
-		core.commands.help();
-		return;
-	end
+  if (#str == 0) then
+    -- User just entered "/at" with no additional args.
+    core.commands.help();
+    return;
+  end
 
-	local args = {};
-	for _, arg in ipairs({ string.split(' ', str) }) do
-		if (#arg > 0) then
-			table.insert(args, arg);
-		end
-	end
+  local args = {};
+  for _, arg in ipairs({ string.split(' ', str) }) do
+    if (#arg > 0) then
+      table.insert(args, arg);
+    end
+  end
 
-	local path = core.commands; -- required for updating found table.
+  local path = core.commands; -- required for updating found table.
 
-	for id, arg in ipairs(args) do
-		if (#arg > 0) then -- if string length is greater than 0.
-			arg = arg:lower();
-			if (path[arg]) then
-				if (type(path[arg]) == "function") then
-					-- all remaining args passed to our function!
-					path[arg](select(id + 1, unpack(args)));
-					return;
-				elseif (type(path[arg]) == "table") then
-					path = path[arg]; -- another sub-table found!
-				end
-			else
-				-- does not exist!
-				core.commands.help();
-				return;
-			end
-		end
-	end
+  for id, arg in ipairs(args) do
+    if (#arg > 0) then -- if string length is greater than 0.
+      arg = arg:lower();
+      if (path[arg]) then
+        if (type(path[arg]) == "function") then
+          -- all remaining args passed to our function!
+          path[arg](select(id + 1, unpack(args)));
+          return;
+        elseif (type(path[arg]) == "table") then
+          path = path[arg]; -- another sub-table found!
+        end
+      else
+        -- does not exist!
+        core.commands.help();
+        return;
+      end
+    end
+  end
 end
 
 function core:Print(...)
@@ -67,14 +67,24 @@ function core:init()
   SLASH_GUILDCHECKER1 = '/guildchecker';
   SLASH_GUILDCHECKER2 = '/GUILDCHECKER';
   local function handler(msg, editBox)
-      if msg == '' then
+      --if msg == '' then
         core.GuildChecker:Toggle();
+      --end
+      --core:Print("Debug: core.GuildChecker:IsShown() = " .. tostring(core.GuildChecker:IsShown()));
+      
+      if core.GuildChecker:IsShown() then
+        --core:Print("Debug: user wanted to open guildchecker")
+        core.GuildChecker:SetIntentionallyOpened(true) --user wanted to open this to mess with options or look at About tab, don't close it until they want to close it, even if they aren't in a group
       end
+      
+      
   end
   SlashCmdList["GUILDCHECKER"] = handler;
   
   core.GuildChecker:CreateGuildChecker();
-
+  if GuildCheckerFirstTimeRun then
+    core.GuildChecker:Show()
+  end
   --core.GuildChecker:Toggle();
   
   --[[ don't need to print this anymore, can probably delete this code
@@ -98,10 +108,10 @@ end
 
 local function OnEvent(self, event, ...)
     if event == "ADDON_LOADED" and ... == TOCNAME then
-			if GuildCheckerFirstTimeRun == nil then
-				GuildCheckerFirstTimeRun = true;
-			end
-			
+      if GuildCheckerFirstTimeRun == nil then
+        GuildCheckerFirstTimeRun = true;
+      end
+      
       core.init();
       core.GuildChecker:RosterUpdate();
     end
