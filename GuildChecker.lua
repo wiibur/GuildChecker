@@ -848,7 +848,6 @@ function GuildChecker:CreateGuildChecker()
 
 	local aboutMessage = content3:CreateFontString("aboutMessage","OVERLAY", content3,nil);
 	aboutMessage:SetFontObject("GameFontHighlight");
-	--aboutMessage:SetText("Notes: \n|cff9ACD321. Guild detection is based on player being visible/nearby.\n2. Enable friendly nameplates to boost guild detection.\n3. If you hide the add-on, show it again with \"/guildchecker show\".\n4. Use the Roster Update button if a player's name shows up as \"UNKNOWN\".\n5. Use the Detect button if a player's guild isn't detected automatically (can only be used once every few seconds).|r\n\nCreated By: |cff9370DBWiibur <TL> - Herod|r\nDiscord:      |cff9370DBWiibur#0001|r");
 	aboutMessage:SetPoint("TOPLEFT", content3, "TOPLEFT", 5, -6);
 	aboutMessage:SetWidth(460);
 	aboutMessage:SetJustifyH("LEFT");
