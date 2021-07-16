@@ -690,7 +690,7 @@ function GuildChecker:CreateGuildChecker()
 	GuildCheckerFrame:SetSize(500,200);
 	GuildCheckerFrame:SetMinResize(500,200);
 	GuildCheckerFrame:SetMaxResize(500,600);
-	GuildCheckerFrame:SetPoint("TOPLEFT", UIParent, "TOPLEFT");
+	GuildCheckerFrame:SetPoint("CENTER", UIParent, "CENTER");
 
 	GuildCheckerFrame.title = GuildCheckerFrame:CreateFontString(nil,"OVERLAY");
 	GuildCheckerFrame.title:SetFontObject("GameFontHighlight");
