@@ -67,17 +67,17 @@ function core:init()
   SLASH_GUILDCHECKER1 = '/guildchecker';
   SLASH_GUILDCHECKER2 = '/GUILDCHECKER';
   local function handler(msg, editBox)
-      --if msg == '' then
-        core.GuildChecker:Toggle();
-      --end
-      --core:Print("Debug: core.GuildChecker:IsShown() = " .. tostring(core.GuildChecker:IsShown()));
-      
+    if msg == '' then
+      core.GuildChecker:Toggle();
       if core.GuildChecker:IsShown() then
         --core:Print("Debug: user wanted to open guildchecker")
         core.GuildChecker:SetIntentionallyOpened(true) --user wanted to open this to mess with options or look at About tab, don't close it until they want to close it, even if they aren't in a group
       end
-      
-      
+    end
+    
+    if msg == 'test' then
+      --TODO: write a function to create raid test data (40 player rows)
+    end
   end
   SlashCmdList["GUILDCHECKER"] = handler;
   
@@ -123,11 +123,11 @@ local function OnEvent(self, event, ...)
     if event == "CHAT_MSG_SYSTEM" then
       core.GuildChecker:ParseSystemMessage(...);
     end
-
+  --[[
     if event == "NAME_PLATE_UNIT_ADDED" then
       core.GuildChecker:ParseNamplates(...);
     end
-
+  ]]
 end
 
 local events = CreateFrame("Frame");
